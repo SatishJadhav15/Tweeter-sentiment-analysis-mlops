@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 import pickle
 import os
-
+import yaml
 from sklearn.feature_extraction.text import CountVectorizer
 
 # fetch the data from data/processed
@@ -19,8 +19,17 @@ y_train = train_data['label'].values
 X_test = test_data['tweet'].values
 y_test = test_data['label'].values
 # Apply Bag of Words (CountVectorizer)
-vectorizer = CountVectorizer(max_features=5000, ngram_range=(1,2), min_df = 2)
+# vectorizer = CountVectorizer(max_features=5000, ngram_range=(1,2), min_df = 2)
+params = yaml.safe_load(open("params.yaml"))
 
+vectorizer = CountVectorizer(
+    max_features=params["vectorizer"]["max_features"],
+    ngram_range=(
+        params["vectorizer"]["ngram_min"],
+        params["vectorizer"]["ngram_max"]
+    ),
+    min_df=2 
+)
 # Fit the vectorizer on the training data and transform it
 X_train_bow = vectorizer.fit_transform(X_train)
 

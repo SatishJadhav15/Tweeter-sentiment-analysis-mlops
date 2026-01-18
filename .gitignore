@@ -1,6 +1,7 @@
 venv/
 __pycache__/
+data/
 *.pkl
 *.log
-data/
 .dvc/ca
+/metrics.json
