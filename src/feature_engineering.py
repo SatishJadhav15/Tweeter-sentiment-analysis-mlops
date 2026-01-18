@@ -5,21 +5,24 @@ import os
 import yaml
 from sklearn.feature_extraction.text import CountVectorizer
 
-# fetch the data from data/processed
-train_data = pd.read_csv('./data/processed/train_processed.csv')
-test_data = pd.read_csv('./data/processed/test_processed.csv')
+# -----------------------------
+# Load processed data
+# -----------------------------
+train_data = pd.read_csv("./data/processed/train_processed.csv")
+test_data = pd.read_csv("./data/processed/test_processed.csv")
 
-train_data.fillna('',inplace=True)
-test_data.fillna('',inplace=True)
+train_data.fillna("", inplace=True)
+test_data.fillna("", inplace=True)
 
-# apply BoW
-X_train = train_data['tweet'].values
-y_train = train_data['label'].values
+X_train = train_data["tweet"].values
+y_train = train_data["label"].values
 
-X_test = test_data['tweet'].values
-y_test = test_data['label'].values
-# Apply Bag of Words (CountVectorizer)
-# vectorizer = CountVectorizer(max_features=5000, ngram_range=(1,2), min_df = 2)
+X_test = test_data["tweet"].values
+y_test = test_data["label"].values
+
+# -----------------------------
+# Load parameters
+# -----------------------------
 params = yaml.safe_load(open("params.yaml"))
 
 vectorizer = CountVectorizer(
@@ -28,29 +31,24 @@ vectorizer = CountVectorizer(
         params["vectorizer"]["ngram_min"],
         params["vectorizer"]["ngram_max"]
     ),
-    min_df=2 
+    min_df=2
 )
-# Fit the vectorizer on the training data and transform it
+
+# -----------------------------
+# Vectorization
+# -----------------------------
 X_train_bow = vectorizer.fit_transform(X_train)
-
-pickle.dump(vectorizer, open("vectorizer.pkl", "wb"))
-
-# Transform the test data using the same vectorizer
 X_test_bow = vectorizer.transform(X_test)
 
-train_df = pd.DataFrame(X_train_bow.toarray())
+# -----------------------------
+# Save artifacts (NUMPY only)
+# -----------------------------
+os.makedirs("data/features", exist_ok=True)
 
-train_df['label'] = y_train
+np.save("data/features/X_train.npy", X_train_bow.toarray())
+np.save("data/features/y_train.npy", y_train)
 
-test_df = pd.DataFrame(X_test_bow.toarray())
+np.save("data/features/X_test.npy", X_test_bow.toarray())
+np.save("data/features/y_test.npy", y_test)
 
-test_df['label'] = y_test
-
-# store the data inside data/features
-data_path = os.path.join("data","features")
-
-os.makedirs(data_path, exist_ok=True)
-
-train_df.to_csv(os.path.join(data_path,"train_bow.csv"))
-test_df.to_csv(os.path.join(data_path,"test_bow.csv"))
-
+pickle.dump(vectorizer, open("vectorizer.pkl", "wb"))

@@ -1,7 +1,7 @@
 model:
-  n_estimators: 50
+  n_estimators: 150
 
 vectorizer:
-  max_features: 5000
+  max_features: 8000
   ngram_min: 1
   ngram_max: 2
